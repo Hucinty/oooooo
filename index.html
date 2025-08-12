@@ -110,6 +110,7 @@
   </div>
 
 <script>
+let useFront = true; // true = front camera, false = back camera
 let useFront = true; // track camera side
 /*
   poi.html - Realtime Sketch Converter
@@ -179,6 +180,7 @@ async function startCamera(){
   logStatus('requesting camera...');
   try {
     if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
     mediaStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: useFront ? "user" : "environment", width: 1280, height: 720 },
       audio: false
@@ -191,6 +193,7 @@ async function startCamera(){
     document.getElementById("toggleCam").disabled = false;
     startBtn.disabled = true;
     stopBtn.disabled = false;
+    document.getElementById("toggleCam").disabled = false;
 
     initWebGLIfPossible();
     startRenderLoop();
@@ -213,6 +216,7 @@ function stopCamera(){
   animationId = null;
   startBtn.disabled = false;
   stopBtn.disabled = true;
+    document.getElementById("toggleCam").disabled = true;
   logStatus('stopped');
 }
 
@@ -780,6 +784,13 @@ function detectMimeTypeForRecorder(){
 // UI wiring
 startBtn.addEventListener('click', startCamera);
 stopBtn.addEventListener('click', stopCamera);
+
+const toggleCam = document.getElementById('toggleCam');
+toggleCam.addEventListener('click', async () => {
+  useFront = !useFront;
+  await startCamera();
+});
+
 
 filterSelect.addEventListener('change', () => { /* handled in render */ });
 sensitivity.addEventListener('input', () => { /* handled in render */ });
